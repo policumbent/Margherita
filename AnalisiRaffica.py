@@ -23,10 +23,17 @@ with open('2021_10_24__12_29_17.csv',newline='') as csvfile:
         i+=1 
 
 n=int(np.size(M, axis=0))  
-V = np.float_([M[i][3] for i in range(n)]) # non posso usare : per array multidimensionale
+v = np.float_([M[i][3] for i in range(n)]) # non posso usare : per array multidimensionale
 
 t = np.zeros((int(np.round(n/900)),5)) # per caratterizzare intervalli di 15min
 bool = True
+
+
+# inserire filtro di media
+param_3 = 3
+h = 1/param_3*np.ones(param_3)
+V = np.convolve(v,h,'valid')
+n_rid= int(np.size(V,axis=0))
 
 
 i=1
@@ -53,7 +60,8 @@ param_1 = 1.2
 param_2 = 0.8
 fine_raff_prec = 0
 
-while i<n:
+
+while i<n_rid:
     if V[i]>param_1*np.mean(V[i-2:i-1]) and V[i]>0.5:
         fine_raff_prec=j
         j=i
@@ -62,7 +70,8 @@ while i<n:
         
         plt.plot(np.arange(fine_raff_prec,j+1,1),V[fine_raff_prec:j+1])
         plt.xlabel('Tempo')
-        plt.ylabel('Intensità vento [km/h]')            
+        plt.ylabel('Intensità vento [km/h]')     
+        plt.show()
         
         media_raf = np.mean(V[i:j])
         cont_raf+=1 
