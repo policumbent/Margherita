@@ -9,6 +9,7 @@ Created on Fri Jun 17 18:06:19 2022
 import csv
 import numpy as np
 import matplotlib.pylab as plt 
+import matplotlib.pyplot as plt_pyplot
 import pywt as pwt
 import statistics as st
 from scipy import fftpack as f 
@@ -38,11 +39,11 @@ n_rid= int(np.size(V,axis=0))
 
 i=1
 while bool:
-    t[i-1][0] = np.amax(V[900*(i-1):900*i])
-    t[i-1][1] = np.amin(V[900*(i-1):900*i])
-    t[i-1][2] = np.mean(V[900*(i-1):900*i])
-    t[i-1][3] = st.median(V[900*(i-1):900*i]) # da aggiustare, così scritto non funziona
-    t[i-1][4] = np.sqrt(np.mean(V[900*(i-1):900*i]))
+    t[i-1][0] = np.percentile(V[900*(i-1):900*i],25)
+    t[i-1][1] = np.percentile(V[900*(i-1):900*i],50)
+    t[i-1][2] = np.percentile(V[900*(i-1):900*i],75)
+    t[i-1][3] = np.mean(V[900*(i-1):900*i])
+    t[i-1][4] = np.sqrt(np.mean(np.power(V[900*(i-1):900*i],2)))
     
     if n-900*i >= 900:
         i += 1
@@ -50,33 +51,36 @@ while bool:
         bool = False
         
         
-i=4
+i=5
 j=2
 media_raf = 0
 cont_raf = 0
 int_totale = 0
 dur_raf = 0
-param_1 = 1.2
-param_2 = 0.8
+#param_1 = 1.25
+param_1 = 1.3
+param_2 = 0.85
 fine_raff_prec = 0
-
+# V[i]>param_1*np.mean(V[i-2:i-1])
 
 while i<n_rid:
-    if V[i]>param_1*np.mean(V[i-2:i-1]) and V[i]>0.5:
+    if V[i]>param_1*np.mean(V[i-5:i-4]) and V[i]>1:
         fine_raff_prec=j
         j=i
         while V[j]>param_2*np.mean(V[j-3:j-1]) and j<n:
             j=j+1
         
-        plt.plot(np.arange(fine_raff_prec,j+1,1),V[fine_raff_prec:j+1])
-        plt.xlabel('Tempo')
-        plt.ylabel('Intensità vento [km/h]')     
-        plt.show()
+        plt_pyplot.scatter(np.arange(fine_raff_prec,j+1,1),V[fine_raff_prec:j+1])
+        plt_pyplot.xlabel('Tempo')
+        plt_pyplot.ylabel('Intensità vento [km/h]')
         
-        media_raf = np.mean(V[i:j])
+        plt_pyplot.scatter(i-3, V[i-3])
+        plt_pyplot.show()
+        
+        media_raf = np.mean(V[i-3:j]) # entrano nella stat anche i 3s prima
         cont_raf+=1 
         int_totale+=media_raf
-        dur_raf+=j-i
+        dur_raf+=j-i-3
         i=j  # Riparto da dove è finita l'ultia raffica
     
     i+=1 #incremento i
