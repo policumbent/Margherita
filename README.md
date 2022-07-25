@@ -1,7 +1,9 @@
 # Margherita
 Analisi Raffiche Vento
 
-Il codice analisiRaff identifica le raffiche, ne determina la durata e l'intensità media. Viene utilizzato un filtro di media mobile per regolarizzare il dato, evitando così raffiche di durata troppo corta.
+Il codice analisiRaff: 
+1) per finestre temporali di 15min, determina il 25-, 50- e 75-esimo percentile + media e varianza dei valori di intensità del vento
+2) identifica le raffiche, ne determina la durata e l'intensità media, regolarizzando il dato tramite un filtro di media mobile, evitando così raffiche di durata troppo corta.
 
 Scelte parametri: 
 - più è alto param_1, più è forte la condizione per fare iniziare la raffica,
