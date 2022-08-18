@@ -13,3 +13,8 @@ Valori consigliati per i parametri: param_1 = 1.3, param_2 = 0.85
 
 Mod 20/7/2022: 
 per evitare che piccoli incrementi rendano più difficile l'identificazione della raffica, per la condizione su inizio raffica si confronta il valore attuale con una media di due valori registrati a distanza di 5s in precedenza. Inoltre: per le statistiche l'inizio della raffica è anticipato di 3s perché l'identificazione dell'inizio della raffica avviene leggermente in ritardo. 
+
+Seguono due esempi di grafici. Vengono mostrati le intensità del vento dalla fine della raffica precedente alla fine della raffica successiva. Il puntino colorato segnala l'inizio della raffica.
+
+![Screenshot](es_1_param_1_13_param_2_085.png)
+![Screenshot](es_2_param_1_13_param_2_085.png)
