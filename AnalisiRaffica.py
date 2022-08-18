@@ -25,44 +25,49 @@ with open('2021_10_24__12_29_17.csv',newline='') as csvfile:
 
 n=int(np.size(M, axis=0))  
 v = np.float_([M[i][3] for i in range(n)]) # non posso usare : per array multidimensionale
+durata_int = 900 # lunghezza dell'intervallo in s
+t = np.zeros((int(np.round(n/durata_int)),5)) # per caratterizzare intervalli di 15min
 
-t = np.zeros((int(np.round(n/900)),5)) # per caratterizzare intervalli di 15min
-bool = True
-
-
-# inserire filtro di media
+# filtro di media
 param_3 = 3
 h = 1/param_3*np.ones(param_3)
 V = np.convolve(v,h,'valid')
 n_rid= int(np.size(V,axis=0))
 
-
 i=1
+bool = True
 while bool:
-    t[i-1][0] = np.percentile(V[900*(i-1):900*i],25)
-    t[i-1][1] = np.percentile(V[900*(i-1):900*i],50)
-    t[i-1][2] = np.percentile(V[900*(i-1):900*i],75)
-    t[i-1][3] = np.mean(V[900*(i-1):900*i])
-    t[i-1][4] = np.sqrt(np.mean(np.power(V[900*(i-1):900*i],2)))
+    t[i-1][0] = np.percentile(V[durata_int*(i-1):durata_int*i],25)
+    t[i-1][1] = np.percentile(V[durata_int*(i-1):durata_int*i],50)
+    t[i-1][2] = np.percentile(V[durata_int*(i-1):durata_int*i],75)
+    t[i-1][3] = np.mean(V[durata_int*(i-1):durata_int*i])
+    t[i-1][4] = np.sqrt(np.mean(np.power(V[durata_int*(i-1):durata_int*i],2)))
     
-    if n-900*i >= 900:
+    if n-durata_int*i >= durata_int:
         i += 1
     else:
         bool = False
         
         
-i=5
-j=2
-media_raf = 0
+# Def. variabili per conteggio raffiche per tutto il file
+"""media_raf = 0
 cont_raf = 0
 int_totale = 0
-dur_raf = 0
-#param_1 = 1.25
+dur_raf = 0 """
+
+# Def. variabili per conteggio raffiche nelle finestre temporali
+media_raf = np.zeros(int(np.round(n_rid/durata_int)))
+cont_raf = np.zeros(int(np.round(n_rid/durata_int)))
+int_totale = np.zeros(int(np.round(n_rid/durata_int)))
+dur_raf = np.zeros(int(np.round(n_rid/durata_int)))
+
 param_1 = 1.3
 param_2 = 0.85
-fine_raff_prec = 0
-# V[i]>param_1*np.mean(V[i-2:i-1])
 
+i=5
+j=2
+interv = 0 # indice per l'intervallo
+fine_raff_prec = 0
 while i<n_rid:
     if V[i]>param_1*np.mean(V[i-5:i-4]) and V[i]>1:
         fine_raff_prec=j
@@ -70,29 +75,52 @@ while i<n_rid:
         while V[j]>param_2*np.mean(V[j-3:j-1]) and j<n:
             j=j+1
         
+        # Mostra intensità vento da fine raffica precedente a fine raffica successiva
         plt_pyplot.scatter(np.arange(fine_raff_prec,j+1,1),V[fine_raff_prec:j+1])
         plt_pyplot.xlabel('Tempo')
         plt_pyplot.ylabel('Intensità vento [km/h]')
         
+        # Contrassegna inizio raffica nel grafico (puntino colorato)
         plt_pyplot.scatter(i-3, V[i-3])
         plt_pyplot.show()
         
-        media_raf = np.mean(V[i-3:j]) # entrano nella stat anche i 3s prima
+        # aggiorno variabili
+        """media_raf=np.mean(V[i-3:j]) # entrano nella stat anche i 3s prima
         cont_raf+=1 
         int_totale+=media_raf
         dur_raf+=j-i-3
-        i=j  # Riparto da dove è finita l'ultia raffica
-    
+        i=j  # Riparto da dove è finita l'ultima raffica"""
+        
+        # aggiorno variabili
+        media_raf=np.mean(V[i-3:j]) 
+        cont_raf[interv]+=1
+        int_totale[interv]+=media_raf
+        dur_raf[interv]+=j-i-3
+        i=j
+        
     i+=1 #incremento i
+    if i-durata_int*interv==durata_int:
+            interv+=1 # passaggio ad un nuovo intervallo
     
-if cont_raf>=1:
+# Calcola intensità e durata media raffica per tutto il file    
+"""if cont_raf>=1:
     int_totale_med = int_totale/cont_raf
     dur_raf_med = dur_raf/cont_raf;
     print('Intensità media raf: ' + str(int_totale_med))
     print('Durata media raf ' + str(dur_raf_med))    
-    print('Contatore raffiche: ' + str(cont_raf))
-            
+    print('Contatore raffiche: ' + str(cont_raf))"""
 
+# Calcola intensità e durata media raffica per le finestre temporali   
+interv=0   
+while interv<int(n_rid/durata_int):
+    if cont_raf[interv]>=1:
+        int_totale[interv]=int_totale[interv]/cont_raf[interv]
+        dur_raf[interv]=dur_raf[interv]/cont_raf[interv]
+        print('Intensità media raffiche nel intervallo ' + str(interv) + ': ' + str(int_totale[interv]))
+        print('Durata media raffiche nel intervallo ' + str(interv) + ': ' + str(dur_raf[interv]))    
+        print('Contatore raffiche nel intervallo ' + str(interv) + ': ' + str(int(cont_raf[interv])))    
+    
+    interv+=1 # passo all'intervallo successivo 
                 
 
                 
